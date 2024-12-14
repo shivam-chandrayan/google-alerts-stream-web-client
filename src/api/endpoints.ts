@@ -1,6 +1,6 @@
-export const API_BASE_URL = "http://localhost:3000/api";
+import { QueryParams } from "./types";
 
-type QueryParams = Record<string, string | number>;
+export const API_BASE_URL = "http://localhost:8000/api/v1";
 
 export const createUrl = {
   withPath: (baseUrl: string, path: string | number) => `${baseUrl}/${path}`,
@@ -10,7 +10,14 @@ export const createUrl = {
 
     const url = new URL(baseUrl);
     Object.entries(params).forEach(([key, value]) => {
-      url.searchParams.append(key, String(value));
+      if (value === undefined) return;
+      if (Array.isArray(value)) {
+        value.forEach((v) => {
+          url.searchParams.append(key, String(v));
+        });
+      } else {
+        url.searchParams.append(key, String(value));
+      }
     });
     return url.toString();
   },
@@ -26,5 +33,13 @@ export const ENDPOINTS = {
     base: `${API_BASE_URL}/entries`,
     list: (params?: QueryParams) =>
       createUrl.withQuery(`${API_BASE_URL}/entries`, params),
+    updateStatus: (id: string, status: QueryParams) => {
+      const url = createUrl
+        .withPath(`${API_BASE_URL}/entries`, id)
+        .concat(`/status`);
+      return createUrl.withQuery(url, status);
+    },
+    getBookmarkedEntries: (params?: QueryParams) =>
+      createUrl.withQuery(`${API_BASE_URL}/entries/bookmarked`, params),
   },
 } as const;

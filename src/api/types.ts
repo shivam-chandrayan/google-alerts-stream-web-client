@@ -5,10 +5,12 @@ export interface Entry {
   content: string;
   description: string;
   publisher: string;
-  publishedAt: string;
-  updatedAt: string;
-  createdAt: string;
-  feedId: string;
+  published_at: string;
+  updated_at: string;
+  created_at: string;
+  feed_id: string;
+  is_bookmarked: boolean;
+  is_read: boolean;
 }
 
 export interface Feed {
@@ -20,8 +22,20 @@ export interface Feed {
   created_at: string;
 }
 
+export interface FeedCreatePayload {
+  url: string;
+  keyword: string;
+  name: string;
+}
+
+export interface FeedUpdatePayload {
+  keyword: string;
+  name: string;
+}
+
 export interface EntryResponse {
   entries: Entry[];
+  total_count: number;
 }
 
 export interface FeedResponse {
@@ -33,3 +47,5 @@ export interface ApiError {
   code: string;
   status: number;
 }
+
+export type QueryParams = Record<string, string | number | string[] | boolean>;

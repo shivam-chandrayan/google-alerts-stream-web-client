@@ -1,11 +1,16 @@
 import { ENDPOINTS } from "../endpoints";
-import { Feed, FeedResponse, EntryResponse } from "../types";
+import {
+  Feed,
+  EntryResponse,
+  FeedCreatePayload,
+  FeedUpdatePayload,
+} from "../types";
 import { fetcher } from "../utils/fetcher";
 
 export const feedsService = {
   // Get all feeds
-  getAllFeeds: async (): Promise<FeedResponse> => {
-    return fetcher<FeedResponse>(ENDPOINTS.feeds.base);
+  getAllFeeds: async (): Promise<Feed[]> => {
+    return fetcher<Feed[]>(ENDPOINTS.feeds.base);
   },
 
   // Get feed by ID
@@ -21,17 +26,15 @@ export const feedsService = {
   },
 
   // Update feed
-  updateFeed: async (id: string, data: Partial<Feed>): Promise<Feed> => {
+  updateFeed: async (id: string, data: FeedUpdatePayload): Promise<Feed> => {
     return fetcher<Feed>(ENDPOINTS.feeds.byId(id), {
-      method: "PATCH",
+      method: "PUT",
       body: data,
     });
   },
 
   // Create new feed
-  createFeed: async (
-    data: Omit<Feed, "id" | "created_at" | "last_fetched">
-  ): Promise<Feed> => {
+  createFeed: async (data: FeedCreatePayload): Promise<Feed> => {
     return fetcher<Feed>(ENDPOINTS.feeds.base, {
       method: "POST",
       body: data,

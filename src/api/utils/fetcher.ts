@@ -37,8 +37,6 @@ export async function fetcher<T>(
     }
 
     const res = response.json();
-    console.log("res", res);
-
     return res;
   } catch (error) {
     if (error instanceof FetchError) {
