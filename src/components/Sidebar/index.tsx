@@ -57,7 +57,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     <>
       <div
         className={`${
-          feeds.length > 0 ? "mt-6 mr-6" : ""
+          feeds.length > 0 ? "mt-6 lg:mr-6" : ""
         } flex flex-col gap-4 fixed`}
       >
         <div className="text-4xl">MegaFeed</div>
