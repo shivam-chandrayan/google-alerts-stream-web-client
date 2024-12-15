@@ -5,6 +5,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Feed } from "../../api/types";
 import DeleteModal from "../DeleteModal";
+import { feedsService } from "../../api/services/feeds";
 
 interface SidebarProps {
   setModalOpen: (isOpen: boolean) => void;
@@ -17,7 +18,6 @@ interface SidebarProps {
   refreshAll: () => void;
   toggleBookmarkedContent: () => void;
   showBookmarkedContent: boolean;
-  setupInitialFeeds: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -29,10 +29,10 @@ const Sidebar: React.FC<SidebarProps> = ({
   toggleBookmarkedContent,
   showBookmarkedContent,
   refreshAll,
-  setupInitialFeeds,
 }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [feedToDelete, setFeedToDelete] = useState<Feed | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleFeedSelection = (feedName: string) => {
     setSelectedFeed((prevSelectedFeed: string[]) => {
@@ -51,6 +51,25 @@ const Sidebar: React.FC<SidebarProps> = ({
   const handleDeleteFeed = (feed: Feed) => {
     setFeedToDelete(feed);
     setIsDeleteModalOpen(true);
+  };
+
+  const handleInitializeWithDemoFeeds = async () => {
+    setIsLoading(true);
+
+    if (feeds.length === 0) {
+      await feedsService.createFeed({
+        name: "Gardening",
+        keyword: "gardening",
+        url: "https://www.google.co.in/alerts/feeds/05438962104974075464/2433440630520536900",
+      });
+      await feedsService.createFeed({
+        name: "AI Tools",
+        keyword: "ai-tools",
+        url: "https://www.google.co.in/alerts/feeds/05438962104974075464/1030448771077491967",
+      });
+      refreshAll();
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -74,10 +93,15 @@ const Sidebar: React.FC<SidebarProps> = ({
 
         {feeds.length === 0 && (
           <button
-            className="px-6 py-3  text-blue-500 font-medium text-sm leading-tight uppercase rounded-lg shadow-md hover:shadow-lg focus:bg-blue-600 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 active:bg-blue-700 active:shadow-lg transition duration-150 ease-in-out"
-            onClick={setupInitialFeeds}
+            className="px-6 py-3  text-blue-500 font-medium text-sm leading-tight uppercase rounded-lg shadow-md hover:shadow-lg focus:bg-blue-600 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 active:bg-blue-700 active:shadow-lg transition duration-150 ease-in-out flex items-center justify-center"
+            onClick={handleInitializeWithDemoFeeds}
+            disabled={isLoading}
           >
-            Initialize with demo feeds
+            {isLoading ? (
+              <span className="loader border-t-blue-600 border-2 border-gray-200 w-4 h-4 rounded-full animate-spin mr-2"></span>
+            ) : (
+              "Initialize with demo feeds"
+            )}
           </button>
         )}
 

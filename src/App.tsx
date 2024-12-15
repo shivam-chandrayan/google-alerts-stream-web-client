@@ -143,22 +143,6 @@ function App() {
     });
   };
 
-  const setupInitialFeeds = async () => {
-    if (feeds.length === 0) {
-      await feedsService.createFeed({
-        name: "Gardening",
-        keyword: "gardening",
-        url: "https://www.google.co.in/alerts/feeds/05438962104974075464/2433440630520536900",
-      });
-      await feedsService.createFeed({
-        name: "AI Tools",
-        keyword: "ai-tools",
-        url: "https://www.google.co.in/alerts/feeds/05438962104974075464/1030448771077491967",
-      });
-      refreshAll();
-    }
-  };
-
   return (
     <>
       <div className="block md:hidden text-blue-500 text-center p-8 h-screen flex justify-center items-center">
@@ -190,7 +174,6 @@ function App() {
               refreshAll={refreshAll}
               showBookmarkedContent={showBookmarkedContent}
               toggleBookmarkedContent={toggleBookmarkedContent}
-              setupInitialFeeds={setupInitialFeeds}
             />
           </div>
 
