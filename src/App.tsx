@@ -178,7 +178,7 @@ function App() {
             className={`${
               feeds.length > 0
                 ? "flex justify-end"
-                : "col-span-2 col-start-2 flex justify-center items-center h-screen text-center"
+                : "col-span-3 xl:col-span-2 xl:col-start-2 flex justify-center items-center h-screen text-center"
             }`}
           >
             <Sidebar
