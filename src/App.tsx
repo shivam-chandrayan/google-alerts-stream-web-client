@@ -20,13 +20,20 @@ function App() {
   const [selectedFeed, setSelectedFeed] = useState<string[]>([]);
   const [feedToEdit, setFeedToEdit] = useState<Feed | null>(null);
   const [showBookmarkedContent, setShowBookmarkedContent] = useState(false);
+
   useEffect(() => {
     const fetchEntries = () => {
-      getEntries({
-        keywords: selectedFeed,
-        limit: limit,
-        skip: skip,
-      });
+      if (selectedFeed.length > 0) {
+        getEntries({
+          keywords: selectedFeed,
+          limit: limit,
+          skip: skip,
+        });
+        setShowBookmarkedContent(false);
+      } else {
+        setEntries([]);
+        setTotal(0);
+      }
     };
 
     fetchEntries();
@@ -36,11 +43,17 @@ function App() {
   }, []);
 
   useEffect(() => {
-    getEntries({
-      keywords: selectedFeed,
-      limit: limit,
-      skip: skip,
-    });
+    if (selectedFeed.length > 0) {
+      getEntries({
+        keywords: selectedFeed,
+        limit: limit,
+        skip: skip,
+      });
+      setShowBookmarkedContent(false);
+    } else {
+      setEntries([]);
+      setTotal(0);
+    }
     setSkip(0);
   }, [selectedFeed]);
 
@@ -52,21 +65,33 @@ function App() {
     if (showBookmarkedContent) {
       getBookmarkedEntries();
     } else {
-      getEntries({
-        keywords: selectedFeed,
-        limit: limit,
-        skip: skip,
-      });
+      if (selectedFeed.length > 0) {
+        getEntries({
+          keywords: selectedFeed,
+          limit: limit,
+          skip: skip,
+        });
+        setShowBookmarkedContent(false);
+      } else {
+        setEntries([]);
+        setTotal(0);
+      }
     }
   }, [showBookmarkedContent]);
 
   const refreshAll = () => {
     getAllFeeds();
-    getEntries({
-      keywords: selectedFeed,
-      limit: limit,
-      skip: skip,
-    });
+    if (selectedFeed.length > 0) {
+      getEntries({
+        keywords: selectedFeed,
+        limit: limit,
+        skip: skip,
+      });
+      setShowBookmarkedContent(false);
+    } else {
+      setEntries([]);
+      setTotal(0);
+    }
     setSkip(0);
   };
 
@@ -118,70 +143,103 @@ function App() {
     });
   };
 
+  const setupInitialFeeds = async () => {
+    if (feeds.length === 0) {
+      await feedsService.createFeed({
+        name: "Gardening",
+        keyword: "gardening",
+        url: "https://www.google.co.in/alerts/feeds/05438962104974075464/2433440630520536900",
+      });
+      await feedsService.createFeed({
+        name: "AI Tools",
+        keyword: "ai-tools",
+        url: "https://www.google.co.in/alerts/feeds/05438962104974075464/1030448771077491967",
+      });
+      refreshAll();
+    }
+  };
+
   return (
     <>
+      <div className="block md:hidden text-blue-500 text-center p-8 h-screen flex justify-center items-center">
+        This app is best viewed in desktop mode. Please switch to a larger
+        screen.
+      </div>
+
       <Modal
         isOpen={isModalOpen}
         setIsOpen={setIsModalOpen}
         refreshAll={refreshAll}
         feedToEdit={feedToEdit}
       />
-      <div className="grid grid-cols-4 gap-4">
-        <div
-          className={`${
-            feeds.length > 0
-              ? "flex justify-end"
-              : "col-span-2 col-start-2 flex justify-center items-center h-screen text-center"
-          }`}
-        >
-          <Sidebar
-            setModalOpen={setIsModalOpen}
-            feeds={feeds}
-            selectedFeed={selectedFeed}
-            setSelectedFeed={setSelectedFeed}
-            setFeedToEdit={setFeedToEdit}
-            refreshAll={refreshAll}
-            showBookmarkedContent={showBookmarkedContent}
-            toggleBookmarkedContent={toggleBookmarkedContent}
-          />
-        </div>
+      <div className="hidden md:block">
+        <div className="grid max-w-screen-2xl mx-auto px-4 grid-cols-3 xl:grid-cols-4 gap-4">
+          <div
+            className={`${
+              feeds.length > 0
+                ? "flex justify-end"
+                : "col-span-2 col-start-2 flex justify-center items-center h-screen text-center"
+            }`}
+          >
+            <Sidebar
+              setModalOpen={setIsModalOpen}
+              feeds={feeds}
+              selectedFeed={selectedFeed}
+              setSelectedFeed={setSelectedFeed}
+              setFeedToEdit={setFeedToEdit}
+              refreshAll={refreshAll}
+              showBookmarkedContent={showBookmarkedContent}
+              toggleBookmarkedContent={toggleBookmarkedContent}
+              setupInitialFeeds={setupInitialFeeds}
+            />
+          </div>
 
-        {feeds.length > 0 && (
-          <div className="feed col-span-2">
-            <div className="pagination-container sticky top-0 bg-gray-100">
-              <div className="flex justify-end items-center gap-2 h-16">
-                <div>
-                  {skip}-{skip + limit > total ? total : skip + limit} of{" "}
-                  {total}
+          {feeds.length > 0 && (
+            <div className="feed col-span-2">
+              {entries.length > 0 && (
+                <div className="pagination-container sticky top-0 bg-gray-100">
+                  <div className="flex justify-end items-center gap-2 h-16">
+                    <div>
+                      {skip}-{skip + limit > total ? total : skip + limit} of{" "}
+                      {total}
+                    </div>
+                    <button
+                      aria-label="bookmark"
+                      className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                      disabled={skip === 0}
+                      onClick={handlePreviousPage}
+                    >
+                      <NavigateBeforeIcon className="w-5 h-5 text-gray-600" />
+                    </button>
+                    <button
+                      aria-label="bookmark"
+                      className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                      disabled={skip + limit >= total}
+                      onClick={handleNextPage}
+                    >
+                      <NavigateNextIcon className="w-5 h-5 text-gray-600" />
+                    </button>
+                  </div>
                 </div>
-                <button
-                  aria-label="bookmark"
-                  className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
-                  disabled={skip === 0}
-                  onClick={handlePreviousPage}
-                >
-                  <NavigateBeforeIcon className="w-5 h-5 text-gray-600" />
-                </button>
-                <button
-                  aria-label="bookmark"
-                  className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
-                  disabled={skip + limit >= total}
-                  onClick={handleNextPage}
-                >
-                  <NavigateNextIcon className="w-5 h-5 text-gray-600" />
-                </button>
+              )}
+              <div className="flex flex-col gap-4">
+                {entries.length === 0 && (
+                  <div className="flex justify-center items-center h-screen text-center text-gray-600">
+                    {showBookmarkedContent
+                      ? "No bookmarked entries found"
+                      : "Select a feed to show entries"}
+                  </div>
+                )}
+                {entries.map((entry) => (
+                  <EntryCard
+                    entry={entry}
+                    handleEntryStatusUpdate={handleEntryStatusUpdate}
+                  />
+                ))}
               </div>
             </div>
-            <div className="flex flex-col gap-4">
-              {entries.map((entry) => (
-                <EntryCard
-                  entry={entry}
-                  handleEntryStatusUpdate={handleEntryStatusUpdate}
-                />
-              ))}
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </>
   );

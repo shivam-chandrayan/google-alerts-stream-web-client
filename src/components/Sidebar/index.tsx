@@ -17,6 +17,7 @@ interface SidebarProps {
   refreshAll: () => void;
   toggleBookmarkedContent: () => void;
   showBookmarkedContent: boolean;
+  setupInitialFeeds: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -28,6 +29,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   toggleBookmarkedContent,
   showBookmarkedContent,
   refreshAll,
+  setupInitialFeeds,
 }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [feedToDelete, setFeedToDelete] = useState<Feed | null>(null);
@@ -55,7 +57,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     <>
       <div
         className={`${
-          feeds.length > 0 ? "mt-6 mr-6" : ""
+          feeds.length > 0 ? "mt-6 lg:mr-6" : ""
         } flex flex-col gap-4 fixed`}
       >
         <div className="text-4xl">MegaFeed</div>
@@ -69,6 +71,15 @@ const Sidebar: React.FC<SidebarProps> = ({
         >
           Add New RSS Feed
         </button>
+
+        {feeds.length === 0 && (
+          <button
+            className="px-6 py-3  text-blue-500 font-medium text-sm leading-tight uppercase rounded-lg shadow-md hover:shadow-lg focus:bg-blue-600 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 active:bg-blue-700 active:shadow-lg transition duration-150 ease-in-out"
+            onClick={setupInitialFeeds}
+          >
+            Initialize with demo feeds
+          </button>
+        )}
 
         {feeds.length > 0 && (
           <button
