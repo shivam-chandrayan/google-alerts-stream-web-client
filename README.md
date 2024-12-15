@@ -25,8 +25,8 @@ Ensure you have the following installed on your machine:
 
 1. Clone the repository:
    ```bash
-   gh repo clone shivam-chandrayan/google-alerts-stream-service
-   cd google-alerts-stream-service
+   gh repo clone shivam-chandrayan/google-alerts-stream-web-client
+   cd google-alerts-stream-web-client
    ```
 
 2. Install dependencies:
