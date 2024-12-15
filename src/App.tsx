@@ -13,7 +13,7 @@ import { entriesService } from "./api/services/entries";
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [limit, _] = useState(10);
-  const [offset, setOffset] = useState(0);
+  const [skip, setSkip] = useState(0);
   const [total, setTotal] = useState(0);
   const [entries, setEntries] = useState<Entry[]>([]);
   const [feeds, setFeeds] = useState<Feed[]>([]);
@@ -25,7 +25,7 @@ function App() {
       getEntries({
         keywords: selectedFeed,
         limit: limit,
-        offset: offset,
+        skip: skip,
       });
     };
 
@@ -39,9 +39,9 @@ function App() {
     getEntries({
       keywords: selectedFeed,
       limit: limit,
-      offset: offset,
+      skip: skip,
     });
-    setOffset(0);
+    setSkip(0);
   }, [selectedFeed]);
 
   useEffect(() => {
@@ -55,7 +55,7 @@ function App() {
       getEntries({
         keywords: selectedFeed,
         limit: limit,
-        offset: offset,
+        skip: skip,
       });
     }
   }, [showBookmarkedContent]);
@@ -65,8 +65,9 @@ function App() {
     getEntries({
       keywords: selectedFeed,
       limit: limit,
-      offset: offset,
+      skip: skip,
     });
+    setSkip(0);
   };
 
   const getAllFeeds = async () => {
@@ -96,7 +97,25 @@ function App() {
 
   const toggleBookmarkedContent = () => {
     setShowBookmarkedContent((prev) => !prev);
-    setOffset(0);
+    setSkip(0);
+  };
+
+  const handleNextPage = () => {
+    setSkip(skip + limit);
+    getEntries({
+      keywords: selectedFeed,
+      limit: limit,
+      skip: skip + limit,
+    });
+  };
+
+  const handlePreviousPage = () => {
+    setSkip(skip - limit);
+    getEntries({
+      keywords: selectedFeed,
+      limit: limit,
+      skip: skip - limit,
+    });
   };
 
   return (
@@ -132,22 +151,22 @@ function App() {
             <div className="pagination-container sticky top-0 bg-gray-100">
               <div className="flex justify-end items-center gap-2 h-16">
                 <div>
-                  {offset}-{offset + limit > total ? total : offset + limit} of{" "}
+                  {skip}-{skip + limit > total ? total : skip + limit} of{" "}
                   {total}
                 </div>
                 <button
                   aria-label="bookmark"
                   className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
-                  disabled={offset === 0}
-                  onClick={() => setOffset(offset - limit)}
+                  disabled={skip === 0}
+                  onClick={handlePreviousPage}
                 >
                   <NavigateBeforeIcon className="w-5 h-5 text-gray-600" />
                 </button>
                 <button
                   aria-label="bookmark"
                   className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
-                  disabled={offset + limit >= total}
-                  onClick={() => setOffset(offset + limit)}
+                  disabled={skip + limit >= total}
+                  onClick={handleNextPage}
                 >
                   <NavigateNextIcon className="w-5 h-5 text-gray-600" />
                 </button>
